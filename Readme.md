@@ -175,6 +175,22 @@ If logic affects **understanding or intent**, it belongs in **GPT**
 - Batch confirmation flows
 - Rate limiting and request logging
 
+## Commit conventions
+
+We use lightweight commit prefixes to improve readability
+for humans and AI tools:
+
+- intent: product-level steps or decisions
+- schema: database migrations, RLS, structural data changes
+- feat: new features
+- fix: bug fixes and repairs
+
+Examples:
+- feat: add task assignment flow
+- schema: add RLS for tasks table
+- intent: define household task lifecycle
+- fix: correct overdue task calculation
+
 ## License
 
 Private / internal use (customize as needed).
