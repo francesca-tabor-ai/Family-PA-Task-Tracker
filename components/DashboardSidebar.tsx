@@ -45,10 +45,10 @@ function CategoryItem({ category, level, expandedCategories, pathname, onToggle 
         {!hasChildren && <div className="w-4" />}
         <Link
           href={`/category/${category.slug}`}
-          className={`flex-1 px-2 py-1.5 rounded-notion text-sm transition-colors ${
+          className={`notion-sidebar-item flex-1 text-sm ${
             active 
-              ? "bg-notion-hover text-notion-text font-medium" 
-              : "text-notion-textMuted hover:bg-notion-hover hover:text-notion-text"
+              ? "active" 
+              : "text-notion-textMuted hover:text-notion-text"
           }`}
         >
           {category.name}
@@ -98,10 +98,10 @@ export default function DashboardSidebar({ categories }: DashboardSidebarProps):
         <div className="space-y-0.5 mb-6">
           <Link
             href="/"
-            className={`flex items-center gap-2 px-2 py-1.5 rounded-notion text-sm transition-colors ${
+            className={`notion-sidebar-item text-sm ${
               isAllTasks 
-                ? "bg-notion-hover text-notion-text font-medium" 
-                : "text-notion-textMuted hover:bg-notion-hover hover:text-notion-text"
+                ? "active" 
+                : "text-notion-textMuted hover:text-notion-text"
             }`}
           >
             <span>All Tasks</span>
@@ -109,10 +109,10 @@ export default function DashboardSidebar({ categories }: DashboardSidebarProps):
           
           <Link
             href="/categories"
-            className={`flex items-center gap-2 px-2 py-1.5 rounded-notion text-sm transition-colors ${
+            className={`notion-sidebar-item text-sm ${
               isAllCategories 
-                ? "bg-notion-hover text-notion-text font-medium" 
-                : "text-notion-textMuted hover:bg-notion-hover hover:text-notion-text"
+                ? "active" 
+                : "text-notion-textMuted hover:text-notion-text"
             }`}
           >
             <span>Categories</span>
@@ -126,7 +126,7 @@ export default function DashboardSidebar({ categories }: DashboardSidebarProps):
             href="https://chat.whatsapp.com/HGu60zYZPYLG6bWGu0qNJ7"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-2 py-1.5 rounded-notion text-sm text-[#128c7e] hover:bg-notion-hover transition-colors"
+            className="notion-sidebar-item text-sm text-[#128c7e]"
             title="Send a voice note to create a task"
           >
             <span>🎙️ Add via WhatsApp</span>
@@ -142,10 +142,10 @@ export default function DashboardSidebar({ categories }: DashboardSidebarProps):
           <div className="space-y-0.5">
             <Link
               href="/category/uncategorised"
-              className={`flex items-center gap-2 px-2 py-1.5 rounded-notion text-sm transition-colors ${
+              className={`notion-sidebar-item text-sm ${
                 pathname === "/category/uncategorised" 
-                  ? "bg-notion-hover text-notion-text font-medium" 
-                  : "text-notion-textMuted hover:bg-notion-hover hover:text-notion-text"
+                  ? "active" 
+                  : "text-notion-textMuted hover:text-notion-text"
               }`}
             >
               <span>Uncategorised</span>

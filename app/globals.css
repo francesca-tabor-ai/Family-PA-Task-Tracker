@@ -14,6 +14,35 @@
     font-weight: 400;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    cursor: default; /* Default arrow cursor */
+  }
+
+  /* Global cursor system */
+  * {
+    cursor: inherit;
+  }
+
+  /* Clickable items */
+  button, a, [role="button"], [tabindex="0"] {
+    cursor: pointer;
+  }
+
+  /* Text inputs */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  textarea {
+    cursor: text;
+  }
+
+  /* Draggable items */
+  [draggable="true"] {
+    cursor: grab;
+  }
+
+  [draggable="true"]:active {
+    cursor: grabbing;
   }
 
   h1 {
@@ -39,29 +68,62 @@
 @layer components {
   /* Notion-style task row */
   .notion-task-row {
-    @apply flex items-center gap-2 px-2 py-2 rounded-notion;
-    @apply transition-colors duration-150;
+    @apply flex items-center gap-2 px-2.5 py-2.5 rounded-[10px];
+    @apply transition-all;
+    @apply cursor-pointer;
+    /* Hover timing: 120-160ms ease-out */
+    transition-duration: 140ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
   }
 
   .notion-task-row:hover {
     @apply bg-notion-hover;
+    /* Subtle elevation on hover */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   }
 
   /* Notion-style checkbox */
   .notion-checkbox {
     @apply w-4 h-4 rounded border border-notion-border;
     @apply flex items-center justify-center;
-    @apply transition-all duration-150;
     @apply flex-shrink-0;
     @apply cursor-pointer;
+    /* Press timing: 80-120ms */
+    transition: all 100ms cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 10; /* Priority 1: Checkbox wins */
   }
 
   .notion-checkbox:hover {
-    @apply border-notion-text/40;
+    @apply border-notion-text/50;
+    transform: scale(1.05);
+  }
+
+  .notion-checkbox:active {
+    transform: scale(0.95);
   }
 
   .notion-checkbox.checked {
     @apply bg-notion-text border-notion-text;
+    animation: checkboxPop 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes checkboxPop {
+    0% { transform: scale(0.95); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .notion-checkbox svg {
@@ -70,15 +132,20 @@
 
   /* Notion-style section header */
   .notion-section-header {
-    @apply flex items-center gap-2 px-1 py-1.5;
+    @apply flex items-center gap-2 px-2 py-2;
     @apply text-xs font-medium text-notion-textMuted uppercase tracking-wide;
     @apply cursor-pointer select-none;
-    @apply transition-colors duration-150;
-    @apply rounded-notion;
+    @apply rounded-[10px];
+    /* Hover timing: 120-160ms ease-out */
+    transition: all 140ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .notion-section-header:hover {
     @apply bg-notion-hover;
+  }
+
+  .notion-section-header:active {
+    transform: scale(0.98);
   }
 
   /* Notion-style input */
@@ -88,25 +155,161 @@
     @apply text-base text-notion-text;
     @apply placeholder:text-notion-textMuted;
     @apply focus:outline-none;
+    cursor: text;
+  }
+
+  .notion-input-container {
+    @apply flex items-center gap-2 px-3 py-2 rounded-[8px];
+    @apply border border-transparent;
+    /* Hover timing: 120-160ms ease-out */
+    transition: all 140ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .notion-input-container:hover {
+    @apply border-notion-border;
+  }
+
+  .notion-input-container:focus-within {
+    @apply border-notion-text/30;
+    box-shadow: 0 0 0 2px rgba(55, 53, 47, 0.08);
   }
 
   /* Notion-style button (appears on hover) */
   .notion-button {
     @apply opacity-0 group-hover:opacity-100;
-    @apply transition-opacity duration-150;
-    @apply p-1.5 rounded-notion;
+    @apply p-1.5 rounded-[6px];
     @apply hover:bg-notion-border;
     @apply cursor-pointer;
     @apply flex items-center justify-center;
+    /* Hover timing: 120-160ms ease-out */
+    transition: opacity 140ms cubic-bezier(0.4, 0, 0.2, 1),
+                background-color 140ms cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 5; /* Priority 5: Actions */
+  }
+
+  .notion-button:active {
+    transform: scale(0.95);
   }
 
   /* Notion-style inline add button */
   .notion-add-button {
-    @apply px-3 py-1.5 rounded-notion;
+    @apply px-3 py-1.5 rounded-[6px];
     @apply text-sm font-medium text-notion-textMuted;
     @apply bg-notion-hover hover:bg-notion-border;
-    @apply transition-colors duration-150;
     @apply cursor-pointer;
+    /* Hover timing: 120-160ms ease-out */
+    transition: all 140ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .notion-add-button:active {
+    transform: scale(0.98);
+  }
+
+  /* Drag handle (reorder) */
+  .notion-drag-handle {
+    @apply opacity-0 group-hover:opacity-100;
+    @apply p-1 rounded-[6px];
+    @apply cursor-grab;
+    @apply flex items-center justify-center;
+    @apply text-notion-textMuted;
+    transition: opacity 140ms cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 8; /* Priority 2: Drag handle */
+  }
+
+  .notion-drag-handle:hover {
+    @apply bg-notion-border;
+  }
+
+  .notion-drag-handle:active {
+    @apply cursor-grabbing;
+    transform: scale(0.95);
+  }
+
+  /* Overflow menu (⋯) */
+  .notion-overflow-menu {
+    @apply opacity-0 group-hover:opacity-100;
+    @apply p-1.5 rounded-[6px];
+    @apply cursor-pointer;
+    @apply flex items-center justify-center;
+    @apply text-notion-textMuted;
+    transition: opacity 140ms cubic-bezier(0.4, 0, 0.2, 1),
+                background-color 140ms cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 6; /* Priority 6: Overflow menu */
+  }
+
+  .notion-overflow-menu:hover {
+    @apply bg-notion-border text-notion-text;
+  }
+
+  .notion-overflow-menu:active {
+    transform: scale(0.95);
+  }
+
+  /* Sidebar item */
+  .notion-sidebar-item {
+    @apply flex items-center gap-2 px-2 py-1.5 rounded-[10px];
+    @apply cursor-pointer;
+    @apply transition-all;
+    /* Hover timing: 120-160ms ease-out */
+    transition-duration: 140ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .notion-sidebar-item:hover {
+    @apply bg-notion-hover;
+  }
+
+  .notion-sidebar-item.active {
+    @apply bg-notion-hover font-medium;
+    @apply text-notion-text;
+  }
+
+  .notion-sidebar-item:active {
+    transform: scale(0.98);
+  }
+
+  /* Due date pill */
+  .notion-due-pill {
+    @apply px-2 py-0.5 rounded-full;
+    @apply text-xs font-medium;
+    @apply bg-notion-hover text-notion-textMuted;
+    @apply cursor-pointer;
+    transition: all 140ms cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 7; /* Priority 3: Due date pill */
+  }
+
+  .notion-due-pill:hover {
+    @apply bg-notion-border;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+
+  .notion-due-pill:active {
+    transform: scale(0.95);
+  }
+
+  /* Assignee avatars */
+  .notion-avatar-cluster {
+    @apply flex items-center gap-1;
+    @apply cursor-pointer;
+    position: relative;
+    z-index: 6; /* Priority 4: Avatars */
+    transition: gap 140ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .notion-avatar-cluster:hover {
+    gap: 0.25rem; /* Spread avatars on hover */
+  }
+
+  /* Task row content (clickable area) */
+  .notion-task-content {
+    @apply flex-1 min-w-0;
+    cursor: pointer;
+    position: relative;
+    z-index: 1; /* Priority 5: Row click */
   }
 }
 
