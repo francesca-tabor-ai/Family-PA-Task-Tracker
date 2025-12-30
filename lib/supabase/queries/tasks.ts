@@ -5,6 +5,7 @@ export interface Task {
   id: string
   family_id: string
   title: string
+  description: string | null
   category: string | null
   category_id: string | null
   assignee_user_id: string | null
