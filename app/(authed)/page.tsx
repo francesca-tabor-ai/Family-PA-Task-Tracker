@@ -14,9 +14,9 @@ export default async function Page() {
   return (
     <div>
       {/* Page Header - Notion style */}
-      <div className="mb-12">
-        <h1 className="mb-2">Family PA Task Tracker</h1>
-        <p className="text-base text-notion-textMuted">
+      <div className="mb-8 md:mb-12">
+        <h1 className="mb-2 text-3xl md:text-4xl">Family PA Task Tracker</h1>
+        <p className="text-sm md:text-base text-notion-textMuted">
           Add tasks, see what's open, and keep life admin moving.
         </p>
       </div>
