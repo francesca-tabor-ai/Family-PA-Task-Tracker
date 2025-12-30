@@ -18,7 +18,6 @@ const MAX_AUDIO_SIZE_BYTES = MAX_AUDIO_SIZE_MB * 1024 * 1024
 interface CategoryClassification {
   category_slug: string | null
   confidence: number
-  clarifying_question: string | null
 }
 
 interface Category {
@@ -102,44 +101,25 @@ async function fetchCategoriesForFamily(supabase: any, familyId: string): Promis
 
 // Helper: Build category classification prompt
 function buildClassificationPrompt(transcript: string, categories: Category[]): string {
-  // Build category list with hierarchy
-  const categoryList = categories
-    .map(cat => {
-      if (cat.parent_id === null) {
-        return `- ${cat.name} (slug: ${cat.slug})`
-      }
-      const parent = categories.find(p => p.id === cat.parent_id)
-      return `- ${parent ? `${parent.name} > ` : ""}${cat.name} (slug: ${cat.slug})`
-    })
-    .join("\n")
+  // Build simple flat list of slugs (no hierarchy, no names)
+  const categorySlugs = categories
+    .map(cat => cat.slug)
+    .sort()
+    .join("\n- ")
 
-  return `You are a task classification assistant. Analyze the following message and determine which category it belongs to.
+  return `You are categorising a family assistant task.
 
-Available categories (ONLY use these exact slugs):
-${categoryList}
+Available categories:
+- ${categorySlugs}
 
-Message to classify:
+Task text:
 "${transcript}"
 
-Instructions:
-1. Determine the most appropriate category slug from the list above
-2. Provide a confidence score between 0.0 and 1.0
-3. If confidence is below 0.7, provide a clarifying question to help categorize the task
-4. If the message doesn't clearly fit any category, set category_slug to null and confidence below 0.7
-
-Return ONLY valid JSON in this exact format (no markdown, no code blocks):
+Return JSON:
 {
-  "category_slug": "string or null",
-  "confidence": 0.0-1.0,
-  "clarifying_question": "string or null"
-}
-
-Rules:
-- category_slug MUST be one of the slugs from the list above, or null
-- confidence MUST be between 0.0 and 1.0
-- If confidence < 0.7, clarifying_question MUST be provided
-- If confidence >= 0.7, clarifying_question should be null
-- NEVER invent new category slugs - only use what's provided`
+  "category_slug": "...",
+  "confidence": 0.0
+}`
 }
 
 // Helper: Classify message using OpenAI
@@ -155,8 +135,7 @@ async function classifyMessage(
     // No categories available - return null classification
     return {
       category_slug: null,
-      confidence: 0.0,
-      clarifying_question: "No categories are configured yet. Please categorize this task manually."
+      confidence: 0.0
     }
   }
 
@@ -172,10 +151,6 @@ async function classifyMessage(
       body: JSON.stringify({
         model: "gpt-4o-mini",
         messages: [
-          {
-            role: "system",
-            content: "You are a task classification assistant. Always return valid JSON only, no markdown or code blocks."
-          },
           {
             role: "user",
             content: prompt
@@ -208,8 +183,7 @@ async function classifyMessage(
       // Fallback: return low confidence
       return {
         category_slug: null,
-        confidence: 0.0,
-        clarifying_question: "I couldn't categorize this automatically. Please categorize it manually."
+        confidence: 0.0
       }
     }
 
@@ -221,8 +195,12 @@ async function classifyMessage(
       classification.confidence = 0.0
     }
 
-    if (classification.confidence < CONFIDENCE_THRESHOLD && !classification.clarifying_question) {
-      classification.clarifying_question = "Which category does this task belong to?"
+    // Ensure category_slug is valid or null
+    if (classification.category_slug && 
+        !categories.some(cat => cat.slug === classification.category_slug)) {
+      console.warn(`Invalid category slug: ${classification.category_slug}`)
+      classification.category_slug = null
+      classification.confidence = 0.0
     }
 
     return classification
@@ -232,8 +210,7 @@ async function classifyMessage(
     // Safe fallback: return null classification with low confidence
     return {
       category_slug: null,
-      confidence: 0.0,
-      clarifying_question: "I encountered an error categorizing this. Please categorize it manually."
+      confidence: 0.0
     }
   }
 }
@@ -470,18 +447,16 @@ serve(async (req) => {
     )
 
     // Determine task status and response message
-    let taskStatus = "open" // Default status
+    const taskStatus = "open" // Default status
     let responseMessage = ""
 
     if (classification.confidence >= CONFIDENCE_THRESHOLD && categoryId) {
       // High confidence: create task with category
-      taskStatus = "open"
-      responseMessage = `✅ Task created: "${transcript}"\n📁 Category: ${categories.find(c => c.id === categoryId)?.name || "Unknown"}`
+      const categoryName = categories.find(c => c.id === categoryId)?.name || "Unknown"
+      responseMessage = `✅ Task created: "${transcript}"\n📁 Category: ${categoryName}`
     } else {
-      // Low confidence: create task without category, ask for clarification
-      taskStatus = "open" // Use 'open' since 'pending' is not a valid status
-      responseMessage = classification.clarifying_question || 
-        "✅ Task created, but I need help categorizing it. Which category should this belong to?"
+      // Low confidence: create task without category
+      responseMessage = `✅ Task created: "${transcript}"\n⚠️ Please categorize this task manually.`
     }
 
     // Create task
