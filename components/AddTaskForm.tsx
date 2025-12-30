@@ -7,7 +7,7 @@ export default function AddTaskForm({ onAdd }: { onAdd: (title: string) => void 
 
   return (
     <form
-      className="flex gap-2"
+      className="flex gap-3"
       onSubmit={(e) => {
         e.preventDefault();
         const t = title.trim();
@@ -17,12 +17,15 @@ export default function AddTaskForm({ onAdd }: { onAdd: (title: string) => void 
       }}
     >
       <input
-        className="w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-neutral-200"
+        className="w-full rounded-button border border-brand-button-dark bg-white px-4 py-3 text-sm font-rubik text-brand-text placeholder:text-brand-text/40 outline-none transition-all duration-200 focus:ring-2 focus:ring-brand-text focus:border-brand-text"
         placeholder="Add a task…"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
       />
-      <button className="rounded-xl bg-neutral-900 px-4 py-2 text-sm text-white hover:bg-neutral-800">
+      <button 
+        type="submit"
+        className="btn btn-primary font-rubik font-medium"
+      >
         Add
       </button>
     </form>

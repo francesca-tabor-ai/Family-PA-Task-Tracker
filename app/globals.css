@@ -1,4 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rubik:wght@300;400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Rubik', sans-serif;
+  }
+
+  body {
+    @apply bg-brand-background text-brand-text;
+    font-weight: 400;
+  }
+
+  h1, h2, h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  h1 {
+    @apply text-heading-1;
+  }
+
+  h2 {
+    @apply text-heading-2;
+  }
+
+  h3 {
+    @apply text-heading-3;
+  }
+
+  code, pre {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-card bg-white p-5 shadow-card transition-shadow duration-200;
+  }
+
+  .card:hover {
+    @apply shadow-card-hover;
+  }
+
+  .btn {
+    @apply rounded-button px-4 py-2 text-sm font-medium transition-all duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-brand-text focus:ring-offset-2;
+  }
+
+  .btn-primary {
+    @apply bg-brand-button-dark text-brand-text hover:bg-brand-button-medium;
+  }
+
+  .btn-secondary {
+    @apply bg-brand-button-light text-brand-text hover:bg-brand-button-medium;
+  }
+
+  .btn-ghost {
+    @apply bg-transparent border border-brand-button-dark text-brand-text hover:bg-brand-button-light;
+  }
+}
 
