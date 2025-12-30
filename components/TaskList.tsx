@@ -31,50 +31,60 @@ export default function TaskList() {
   }
 
   return (
-    <div className="space-y-6">
-      <section className="rounded-2xl border bg-white p-5 shadow-sm">
+    <div className="space-y-8">
+      <section className="card">
         <AddTaskForm onAdd={addTask} />
       </section>
 
-      <section className="rounded-2xl border bg-white p-5 shadow-sm">
-        <div className="flex items-center justify-between">
-          <h3 className="text-base font-semibold">Open</h3>
-          <span className="text-xs text-neutral-500">{openTasks.length}</span>
+      <section className="card">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-heading-3 text-brand-text">Open</h3>
+          <span className="text-xs font-rubik text-brand-text/60 font-medium">{openTasks.length}</span>
         </div>
-        <ul className="mt-3 space-y-2">
+        <ul className="space-y-3">
           {openTasks.map(t => (
-            <li key={t.id} className="flex items-center justify-between rounded-xl border p-3">
-              <span className="text-sm">{t.title}</span>
+            <li 
+              key={t.id} 
+              className="flex items-center justify-between rounded-button border border-brand-button-light bg-white p-4 transition-all duration-200 hover:shadow-card"
+            >
+              <span className="text-sm font-rubik text-brand-text font-normal">{t.title}</span>
               <button
-                className="rounded-lg border px-3 py-1 text-xs hover:bg-neutral-50"
+                className="btn btn-secondary text-xs"
                 onClick={() => toggle(t.id)}
               >
                 Mark done
               </button>
             </li>
           ))}
-          {openTasks.length === 0 && <p className="mt-2 text-sm text-neutral-500">Nothing open 🎉</p>}
+          {openTasks.length === 0 && (
+            <p className="mt-4 text-sm font-rubik text-brand-text/60 font-light">Nothing open 🎉</p>
+          )}
         </ul>
       </section>
 
-      <section className="rounded-2xl border bg-white p-5 shadow-sm">
-        <div className="flex items-center justify-between">
-          <h3 className="text-base font-semibold">Done</h3>
-          <span className="text-xs text-neutral-500">{doneTasks.length}</span>
+      <section className="card">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-heading-3 text-brand-text">Done</h3>
+          <span className="text-xs font-rubik text-brand-text/60 font-medium">{doneTasks.length}</span>
         </div>
-        <ul className="mt-3 space-y-2">
+        <ul className="space-y-3">
           {doneTasks.map(t => (
-            <li key={t.id} className="flex items-center justify-between rounded-xl border p-3">
-              <span className="text-sm line-through text-neutral-500">{t.title}</span>
+            <li 
+              key={t.id} 
+              className="flex items-center justify-between rounded-button border border-brand-button-light bg-white p-4 transition-all duration-200 hover:shadow-card"
+            >
+              <span className="text-sm font-rubik text-brand-text/50 line-through font-light">{t.title}</span>
               <button
-                className="rounded-lg border px-3 py-1 text-xs hover:bg-neutral-50"
+                className="btn btn-ghost text-xs"
                 onClick={() => toggle(t.id)}
               >
                 Reopen
               </button>
             </li>
           ))}
-          {doneTasks.length === 0 && <p className="mt-2 text-sm text-neutral-500">No completed tasks yet.</p>}
+          {doneTasks.length === 0 && (
+            <p className="mt-4 text-sm font-rubik text-brand-text/60 font-light">No completed tasks yet.</p>
+          )}
         </ul>
       </section>
     </div>
