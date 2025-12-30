@@ -1,6 +1,9 @@
-import TaskList from "@/components/TaskList";
+import NotionTaskList from "@/components/NotionTaskList";
 import { fetchCategoryTree } from "@/lib/supabase/queries/categories";
 import type { CategoryTreeNode } from "@/lib/types/category";
+
+// Force dynamic rendering - this page requires authenticated data from Supabase
+export const dynamic = 'force-dynamic'
 
 export default async function Page() {
   // Fetch categories for task form
@@ -12,15 +15,16 @@ export default async function Page() {
   }
 
   return (
-    <div className="space-y-6">
-      <section className="card card-elevated">
-        <h2 className="text-heading-3 text-brand-text mb-2">All Tasks</h2>
-        <p className="text-sm font-rubik text-brand-text/70 font-light">
-          Tasks captured by voice + API will appear here.
+    <div>
+      {/* Page Header - Notion style */}
+      <div className="mb-8 md:mb-12">
+        <h1 className="mb-2 text-3xl md:text-4xl">Family PA Task Tracker</h1>
+        <p className="text-sm md:text-base text-notion-textMuted">
+          Add tasks, see what's open, and keep life admin moving.
         </p>
-      </section>
+      </div>
 
-      <TaskList categories={categories} />
+      <NotionTaskList categories={categories} />
     </div>
   );
 }

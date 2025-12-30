@@ -1,6 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
+// Force dynamic rendering - this route requires authentication and runtime data
+export const dynamic = 'force-dynamic'
+
 // PATCH /api/tasks/[id] - Update task (primarily status)
 export async function PATCH(
   request: Request,

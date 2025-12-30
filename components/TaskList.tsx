@@ -147,16 +147,13 @@ export default function TaskList({ categories }: TaskListProps) {
               </div>
             </li>
           ))}
-          {openTasks.length === 0 && (
-            <div className="empty-state">
-              <p className="empty-state-text text-base">
-                No open tasks—nice work 🎉
-              </p>
-              <p className="empty-state-text text-sm mt-2">
-                <strong>Tip:</strong> You can add tasks by sending a WhatsApp voice note. Click the WhatsApp link in the top-right corner to join the group.
-              </p>
-            </div>
-          )}
+              {openTasks.length === 0 && (
+                <div className="empty-state">
+                  <p className="empty-state-text text-base">
+                    No open tasks—nice work 🎉
+                  </p>
+                </div>
+              )}
         </ul>
       </section>
 

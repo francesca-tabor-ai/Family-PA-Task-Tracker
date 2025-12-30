@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rubik:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,30 +6,29 @@
 
 @layer base {
   html {
-    font-family: 'Rubik', sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 
   body {
-    @apply bg-brand-background text-brand-text;
+    @apply bg-notion-bg text-notion-text;
     font-weight: 400;
-  }
-
-  h1, h2, h3 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-weight: 700;
-    letter-spacing: 0.02em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   h1 {
-    @apply text-heading-1;
+    @apply text-4xl font-semibold text-notion-text;
+    line-height: 1.2;
   }
 
   h2 {
-    @apply text-heading-2;
+    @apply text-2xl font-semibold text-notion-text;
+    line-height: 1.3;
   }
 
   h3 {
-    @apply text-heading-3;
+    @apply text-lg font-medium text-notion-text;
+    line-height: 1.4;
   }
 
   code, pre {
@@ -38,77 +37,76 @@
 }
 
 @layer components {
-  .card {
-    @apply rounded-card bg-white p-5 shadow-card transition-shadow duration-200;
+  /* Notion-style task row */
+  .notion-task-row {
+    @apply flex items-center gap-2 px-2 py-2 rounded-notion;
+    @apply transition-colors duration-150;
   }
 
-  .card:hover {
-    @apply shadow-card-hover;
+  .notion-task-row:hover {
+    @apply bg-notion-hover;
   }
 
-  .btn {
-    @apply rounded-button px-4 py-2 text-sm font-medium transition-all duration-200;
-    @apply focus:outline-none focus:ring-2 focus:ring-brand-text focus:ring-offset-2;
-  }
-
-  .btn-primary {
-    @apply bg-brand-button-dark text-brand-text hover:bg-brand-button-medium;
-  }
-
-  .btn-secondary {
-    @apply bg-brand-button-light text-brand-text hover:bg-brand-button-medium;
-  }
-
-  .btn-ghost {
-    @apply bg-transparent border border-brand-button-dark text-brand-text hover:bg-brand-button-light;
-  }
-
-  .btn-primary-action {
-    @apply bg-brand-primary text-white hover:bg-brand-text/90 active:scale-95;
-    @apply shadow-md hover:shadow-lg;
-  }
-
-  .card-elevated {
-    @apply shadow-card-elevated;
-  }
-
-  .task-item {
-    @apply transition-all duration-200;
-  }
-
-  .task-item:hover {
-    @apply shadow-card;
-  }
-
-  .task-item-new {
-    animation: highlight 1.5s ease-in-out;
-  }
-
-  .checkbox-custom {
-    @apply w-6 h-6 rounded border-2 border-brand-button-dark cursor-pointer;
-    @apply transition-all duration-200;
+  /* Notion-style checkbox */
+  .notion-checkbox {
+    @apply w-4 h-4 rounded border border-notion-border;
     @apply flex items-center justify-center;
-    @apply hover:border-brand-primary hover:bg-brand-button-light;
+    @apply transition-all duration-150;
+    @apply flex-shrink-0;
+    @apply cursor-pointer;
   }
 
-  .checkbox-custom.checked {
-    @apply bg-brand-primary border-brand-primary;
+  .notion-checkbox:hover {
+    @apply border-notion-text/40;
   }
 
-  .checkbox-custom.checked svg {
-    @apply opacity-100;
+  .notion-checkbox.checked {
+    @apply bg-notion-text border-notion-text;
   }
 
-  .checkbox-custom:not(.checked) svg {
-    @apply opacity-0;
+  .notion-checkbox svg {
+    @apply w-3 h-3 text-white;
   }
 
-  .empty-state {
-    @apply text-center py-8 px-4;
+  /* Notion-style section header */
+  .notion-section-header {
+    @apply flex items-center gap-2 px-1 py-1.5;
+    @apply text-xs font-medium text-notion-textMuted uppercase tracking-wide;
+    @apply cursor-pointer select-none;
+    @apply transition-colors duration-150;
+    @apply rounded-notion;
   }
 
-  .empty-state-text {
-    @apply text-brand-text/50 font-light;
+  .notion-section-header:hover {
+    @apply bg-notion-hover;
+  }
+
+  /* Notion-style input */
+  .notion-input {
+    @apply w-full px-3 py-2;
+    @apply bg-transparent border-none outline-none;
+    @apply text-base text-notion-text;
+    @apply placeholder:text-notion-textMuted;
+    @apply focus:outline-none;
+  }
+
+  /* Notion-style button (appears on hover) */
+  .notion-button {
+    @apply opacity-0 group-hover:opacity-100;
+    @apply transition-opacity duration-150;
+    @apply p-1.5 rounded-notion;
+    @apply hover:bg-notion-border;
+    @apply cursor-pointer;
+    @apply flex items-center justify-center;
+  }
+
+  /* Notion-style inline add button */
+  .notion-add-button {
+    @apply px-3 py-1.5 rounded-notion;
+    @apply text-sm font-medium text-notion-textMuted;
+    @apply bg-notion-hover hover:bg-notion-border;
+    @apply transition-colors duration-150;
+    @apply cursor-pointer;
   }
 }
 

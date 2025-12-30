@@ -4,6 +4,9 @@ import Link from "next/link";
 import type { CategoryTreeNode } from "@/lib/types/category";
 import type { Task } from "@/lib/supabase/queries/tasks";
 
+// Force dynamic rendering - this page requires authenticated data from Supabase
+export const dynamic = 'force-dynamic'
+
 interface CategoryWithCount extends CategoryTreeNode {
   taskCount: number;
   subcategoryCounts: Map<string, number>;
