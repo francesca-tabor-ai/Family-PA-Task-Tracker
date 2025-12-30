@@ -1,207 +1,93 @@
-# Voice-Powered To-Do App
+# Family PA Task Tracker
 
-A modern to-do application that lets you add tasks by voice using a Custom GPT, while keeping your backend and database fully secure. The AI understands intent — your app stays in control.
+A voice-powered family task management application built with Next.js, Supabase, and Twilio WhatsApp integration. Capture tasks via voice messages, manage them through a clean web interface, and keep your family organized.
 
 ## What This App Does
 
-- Add to-dos via voice notes
-- Uses a Custom GPT to:
-  - Transcribe audio
-  - Extract task intent
-  - Convert speech into structured data
-- Calls a secure backend API
-- Persists tasks in your existing database
-- Instantly updates your deployed app
+- **Voice-powered task creation** via WhatsApp voice messages
+- **AI-powered transcription** using OpenAI's speech-to-text
+- **Structured task extraction** with confidence-based logic
+- **Family-based organization** with role-based access control
+- **Real-time task management** through a modern web interface
 
-You never need to open the app to capture tasks — just speak.
+## Quick Start
 
-## High-Level Architecture
-
-```
-User (Voice)
-    ↓
-Custom GPT (Transcription + Intent Parsing)
-    ↓
-(Action / Function Call)
-    ↓
-Secure Backend API (Vercel)
-    ↓
-Database (Source of Truth)
-    ↓
-Frontend App (Live Updates)
-```
-
-### Core Principle (Non-Negotiable)
-
-**A Custom GPT never writes directly to the database.**
-
-- GPT can request actions
-- Backend authorizes and executes
-- Database remains the single source of truth
+1. **Setup**: See [Setup Documentation](./docs/03-setup/)
+2. **Deploy**: Follow [Deployment Guide](./docs/04-deployment/)
+3. **Configure**: Set up [Twilio WhatsApp Integration](./docs/03-setup/TWILIO_WHATSAPP_SETUP.example.md)
 
 ## Tech Stack
 
-- **Frontend**: Existing To-Do App (Vercel)
-- **Backend**: Vercel Serverless Functions
-- **AI / Voice**: OpenAI Custom GPT + Whisper
-- **Database**: Prisma / Supabase / Firebase (existing setup)
+- **Frontend**: Next.js 14 (App Router), TypeScript, Tailwind CSS
+- **Backend**: Next.js API Routes, Supabase Edge Functions
+- **Database**: Supabase (PostgreSQL with Row Level Security)
+- **Voice**: Twilio WhatsApp + OpenAI Whisper
+- **AI**: OpenAI GPT-4o-mini for structured extraction
+- **Deployment**: Vercel (Frontend), Supabase (Backend & Database)
 
-## Security Model
+## Core Principles
 
-- Backend API secured with Bearer token authentication
-- API key stored as a Vercel environment variable
-- Requests validated server-side
-- No database credentials exposed to GPT
+- **Security First**: All database access through Supabase client, RLS policies, no raw SQL
+- **Schema-First**: All database changes via migrations in `supabase/migrations/`
+- **Voice-First UX**: Confidence-based task creation with clarification questions
+- **Family Isolation**: Row-level security ensures data privacy between families
 
-## Setup
+## Documentation
 
-### 1. Environment Variables
+Our documentation is organized by intent, not chronology. Navigate to what you need:
 
-Add the following environment variable in Vercel:
+- 🧭 **[Overview & Intent](./docs/01-overview/)** - Project planning, testing procedures, and high-level understanding
+- 🧠 **[Architecture](./docs/02-architecture/)** - System design, routing decisions, and technical deep dives
+- ⚙️ **[Setup](./docs/03-setup/)** - Local development, Twilio configuration, and first-time setup
+- 🚀 **[Deployment](./docs/04-deployment/)** - Vercel deployment, troubleshooting, and production shipping
+- 🧪 **[Testing](./docs/05-testing/)** - Verification procedures, test results, and build analysis
+- 🔒 **[Production](./docs/06-production/)** - Hardening checklist, security, and operational readiness
+- 📊 **[Analysis](./docs/07-analysis/)** - Postmortems, build fixes, and historical context
 
-```
-GPT_API_KEY=your-secure-random-key
-```
+## Commit Conventions
 
-### 2. Backend API Endpoint
+We use lightweight commit prefixes for readability:
 
-Create a serverless endpoint: `/api/add-todo`
-
-**Responsibilities:**
-- Accept POST requests only
-- Authenticate using `Authorization: Bearer <GPT_API_KEY>`
-- Validate request payload
-- Write to database
-- Return minimal success or error response
-
-**The backend is the only write layer.**
-
-### 3. Custom GPT Action
-
-Define a single action in Custom GPT → Actions:
-
-```json
-{
-  "name": "add_todo",
-  "description": "Add a task to my to-do list",
-  "parameters": {
-    "type": "object",
-    "properties": {
-      "title": {
-        "type": "string",
-        "description": "The task description"
-      },
-      "dueDate": {
-        "type": "string",
-        "description": "Optional due date in ISO format"
-      },
-      "priority": {
-        "type": "string",
-        "enum": ["low", "normal", "high"]
-      }
-    },
-    "required": ["title"]
-  }
-}
-```
-
-Map the action to:
-
-```
-POST https://your-app.vercel.app/api/add-todo
-Authorization: Bearer GPT_API_KEY
-```
-
-## Voice to Task Flow
-
-### Voice Input
-```
-"Remind me to submit the expense report tomorrow morning"
-```
-
-### Structured Task Parsed by GPT
-```json
-{
-  "title": "Submit expense report",
-  "dueDate": "2025-01-15T09:00:00",
-  "priority": "normal"
-}
-```
-
-### Backend Result
-- Task written to database
-- App updates instantly
-- GPT confirms briefly
-
-## Confirmation UX
-
-**Short • Clear • Non-technical**
-
-Example:
-```
-Added: Submit expense report (tomorrow morning)
-```
-
-## Usage
-
-1. Open the ChatGPT mobile app
-2. Send a voice note to your Custom GPT
-3. Task appears instantly in your app
-
-Think of this as a **voice inbox for tasks**.
-
-## Common Pitfalls to Avoid
-
-- Letting GPT access the database directly
-- Missing authentication on API routes
-- Over-verbose confirmations
-- Silent failures
-- Business logic inside GPT
-
-## Mental Model
-
-- **GPT** = Brain + Voice
-- **API** = Hands
-- **App / Database** = Memory
-
-If logic affects **data integrity**, it belongs in the **backend**  
-If logic affects **understanding or intent**, it belongs in **GPT**
-
-## Optional Enhancements
-
-- Multiple tasks from a single voice note
-- Natural-language date parsing ("next Friday", "in two hours")
-- Task category inference (Life Admin, Travel, Health, etc.)
-- Batch confirmation flows
-- Rate limiting and request logging
-
-## Commit conventions
-
-We use lightweight commit prefixes to improve readability
-for humans and AI tools:
-
-- intent: product-level steps or decisions
-- schema: database migrations, RLS, structural data changes
-- feat: new features
-- fix: bug fixes and repairs
+- `intent:` - Product-level steps or decisions
+- `schema:` - Database migrations, RLS, structural data changes
+- `feat:` - New features
+- `fix:` - Bug fixes and repairs
 
 Examples:
-- feat: add task assignment flow
-- schema: add RLS for tasks table
-- intent: define household task lifecycle
-- fix: correct overdue task calculation
+- `feat: add task assignment flow`
+- `schema: add RLS for tasks table`
+- `intent: define household task lifecycle`
+- `fix: correct overdue task calculation`
+
+## Project Structure
+
+```
+├── app/                    # Next.js App Router
+│   ├── (authed)/          # Protected routes
+│   ├── api/               # API route handlers
+│   └── page.tsx           # Home page
+├── components/            # React components
+├── lib/                   # Utilities and helpers
+│   ├── supabase/         # Supabase client setup
+│   └── types/            # TypeScript definitions
+├── supabase/
+│   ├── functions/        # Edge Functions
+│   └── migrations/       # Database migrations
+└── docs/                 # Organized documentation
+```
+
+## Security
+
+- **Row Level Security (RLS)** enabled on all tables
+- **Family-based isolation** via RLS policies
+- **Server-side identity enforcement** (no client spoofing)
+- **Environment variables** properly scoped (NEXT_PUBLIC_ vs server-only)
+- **No secrets in Git** - use `.secrets.env` template
 
 ## License
 
-Private / internal use (customize as needed).
+Private / internal use.
 
-## Final Note
+---
 
-This architecture is designed to be:
-
-- **Secure**
-- **Clear**
-- **Extensible**
-- **Low-friction**
-
-It scales cleanly from a personal voice task inbox to a production-grade assistant-driven system.
+**Need help?** Start with the [Overview](./docs/01-overview/) or [Setup](./docs/03-setup/) documentation.
