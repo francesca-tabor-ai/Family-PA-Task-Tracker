@@ -83,6 +83,20 @@ export default function SidebarCategories({ categories }: SidebarCategoriesProps
   return (
     <nav className="w-full">
       <div className="space-y-1">
+        {/* Uncategorised link */}
+        <div className="w-full">
+          <Link
+            href="/category/uncategorised"
+            className={`flex items-center py-2 px-3 rounded hover:bg-gray-100 ${
+              pathname === '/category/uncategorised' ? 'bg-gray-200 font-semibold' : ''
+            }`}
+          >
+            <div className="w-6" />
+            <span>Uncategorised</span>
+          </Link>
+        </div>
+        
+        {/* Category tree */}
         {categories.map(category => renderCategory(category, 0))}
       </div>
     </nav>
