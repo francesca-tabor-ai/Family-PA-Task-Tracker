@@ -1,0 +1,278 @@
+# Cursor Rules: Family PA Task Tracker
+
+These rules enforce consistency and prevent drift in the codebase. Follow them strictly.
+
+## Framework & Stack
+
+### Next.js App Router
+- Use **App Router** (`app/` directory), not Pages Router
+- Server Components by default; use `"use client"` only when needed
+- Route handlers in `app/api/**/route.ts`
+- Route groups for organization: `(authed)/`, `(public)/`
+- Use `cookies()` from `next/headers` for server-side auth
+- Use `redirect()` from `next/navigation` for redirects
+
+### TypeScript
+- **Strict mode enabled** - no `any` types without justification
+- Define types in `lib/types/` directory
+- Use Supabase generated types when available
+- Export types from a single source of truth
+- Prefer interfaces for object shapes, types for unions/intersections
+
+### Tailwind CSS
+- Use **Tailwind utility classes** only; no custom CSS files (except `globals.css` for base styles)
+- Use Tailwind's design tokens (colors, spacing, typography)
+- Prefer composition over custom classes
+- Use `@apply` sparingly, only for repeated patterns
+
+## Database & Migrations
+
+### Schema Changes
+- **ALL database schema changes** must be in `supabase/migrations/`
+- **NEVER edit applied migrations** - create new migration files with later timestamps
+- Migration file naming: `YYYYMMDDHHMMSS_description.sql`
+- Use `create extension if not exists` for extensions
+- Use `create table if not exists` for tables
+- Use `create index if not exists` for indexes
+- Always include rollback considerations in migration comments
+
+### Database Access
+- **ALL database access** must go through Supabase client (`@supabase/supabase-js` or `@supabase/ssr`)
+- **NO raw SQL queries** in application code (Next.js, components, API routes)
+- Use Supabase query builder: `.from()`, `.select()`, `.insert()`, `.update()`, `.delete()`
+- Complex queries should be in `lib/supabase/queries/` directory
+- Server-side: use `createServerClient` from `@supabase/ssr`
+- Client-side: use `createBrowserClient` from `@supabase/ssr`
+- Edge Functions: use `createClient` from `@supabase/supabase-js` with service role key
+
+### Row Level Security (RLS)
+- **RLS must be enabled** on all user-facing tables
+- Policies must be defined in migrations, not application code
+- Test RLS policies with both anon and authenticated clients
+- Service role key bypasses RLS (use only in Edge Functions)
+
+## Security & Secrets
+
+### Environment Variables
+- **NEVER commit secrets** to Git (API keys, passwords, tokens, service role keys)
+- Use `.env.local` for local development (already in `.gitignore`)
+- Use `.env.example` or `.secrets.env` as templates with placeholders
+- Browser-exposed variables: prefix with `NEXT_PUBLIC_` (Supabase URL, anon key only)
+- Server-only variables: NO `NEXT_PUBLIC_` prefix (service role keys, API keys, webhook secrets)
+- Document required env vars in `ENV_SETUP.md` or similar
+
+### Secrets Management
+- Supabase Edge Functions: use `supabase secrets set` for production
+- Vercel: set env vars in dashboard (Preview + Production)
+- Local Edge Functions: use `supabase/functions/.env` (already in `.gitignore`)
+- If secrets are accidentally committed, rewrite Git history immediately
+
+### Code Review
+- Before committing, check for:
+  - Hardcoded API keys, tokens, passwords
+  - Real phone numbers, email addresses
+  - Database connection strings with passwords
+  - Service role keys
+- Use placeholders: `YOUR_API_KEY_HERE`, `ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX`
+
+## Testing & Verification
+
+### Testing Requirements
+- **Every code change** must include either:
+  1. **Automated tests** (unit, integration, E2E), OR
+  2. **Manual testing documentation** in `MANUAL_TESTING.md`
+
+### Manual Testing Documentation
+- Update `MANUAL_TESTING.md` with:
+  - **Steps to reproduce** the change
+  - **Expected results** for each step
+  - **Edge cases** to verify
+  - **Rollback steps** if something goes wrong
+- Format:
+  ```markdown
+  ## [Feature Name] - [Date]
+  
+  ### Steps
+  1. Step one
+  2. Step two
+  
+  ### Expected Results
+  - Result one
+  - Result two
+  
+  ### Edge Cases
+  - Edge case one
+  ```
+- Link to related issue/PR if applicable
+
+### Test Coverage
+- Critical paths must have tests:
+  - Authentication flows
+  - Database operations (via Supabase client)
+  - Edge Function webhook handling
+  - RLS policy enforcement
+- Prefer automated tests for regression prevention
+- Manual tests acceptable for UI/UX changes, one-off migrations
+
+## Code Organization
+
+### Directory Structure
+```
+app/
+  (authed)/          # Protected routes
+  (public)/          # Public routes
+  api/               # Route handlers
+lib/
+  supabase/
+    client.ts        # Browser client
+    server.ts        # Server client
+    queries/         # Database query functions
+  types/             # TypeScript type definitions
+components/          # React components
+supabase/
+  migrations/        # Database migrations ONLY
+  functions/          # Edge Functions
+```
+
+### File Naming
+- Components: `PascalCase.tsx` (e.g., `TaskForm.tsx`)
+- Utilities: `camelCase.ts` (e.g., `formatDate.ts`)
+- Types: `camelCase.ts` (e.g., `database.ts`)
+- Routes: `page.tsx`, `route.ts`, `layout.tsx`, `loading.tsx`, `error.tsx`
+
+### Import Organization
+- Group imports: external packages → internal modules → types
+- Use absolute imports from project root (configured in `tsconfig.json`)
+- Example:
+  ```typescript
+  import { createClient } from '@supabase/supabase-js'
+  import { Task } from '@/lib/types/database'
+  import { fetchTasks } from '@/lib/supabase/queries/tasks'
+  ```
+
+## Edge Functions
+
+### Structure
+- One function per file: `supabase/functions/[function-name]/index.ts`
+- Use Deno runtime (not Node.js)
+- Import from `https://deno.land/std` or `https://esm.sh`
+- Environment variables: use `Deno.env.get()`
+- Error handling: return user-friendly messages, log details server-side
+
+### Webhook Handling
+- Always verify webhook authenticity (shared secret, signature verification)
+- Implement idempotency (use `inbound_messages` table with `MessageSid`)
+- Return appropriate HTTP status codes
+- Use TwiML for WhatsApp responses
+
+## Git & Version Control
+
+### Commit Messages
+- Follow lightweight prefix convention:
+  - `intent:` - Intent/planning commits
+  - `schema:` - Database schema changes
+  - `feat:` - New features
+  - `fix:` - Bug fixes
+  - `docs:` - Documentation updates
+- Example: `feat: Add task filtering by status`
+
+### Branch Strategy
+- `main` - Production-ready code
+- Feature branches: `feature/description`
+- Never commit directly to `main` (use PRs)
+
+### Pre-Commit Checklist
+- [ ] No secrets in code
+- [ ] No raw SQL in application code
+- [ ] Migrations are in `supabase/migrations/`
+- [ ] Tests added or `MANUAL_TESTING.md` updated
+- [ ] TypeScript compiles without errors
+- [ ] RLS policies tested
+- [ ] Environment variables documented
+
+## Documentation
+
+### Required Documentation
+- `README.md` - Project overview, setup instructions
+- `BUILD_PLAN.md` - Implementation phases and checklist
+- `MANUAL_TESTING.md` - Manual testing procedures
+- `ENV_SETUP.md` - Environment variable configuration
+- `TWILIO_WHATSAPP_SETUP.md` - Twilio integration guide (with placeholders)
+- `VERCEL_DEPLOYMENT.md` - Deployment instructions
+
+### Code Comments
+- Document complex logic, especially:
+  - RLS policy rationale
+  - Edge Function webhook handling
+  - Confidence gate logic
+  - Idempotency mechanisms
+- Use JSDoc for exported functions
+- Keep comments up-to-date with code changes
+
+## Error Handling
+
+### Application Code
+- Use try/catch blocks for async operations
+- Return user-friendly error messages
+- Log detailed errors server-side (never expose to client)
+- Use Next.js error boundaries for React errors
+
+### Edge Functions
+- Always return HTTP responses (never throw unhandled errors)
+- Log errors with context (MessageSid, phone number, etc.)
+- Return TwiML error messages for WhatsApp webhooks
+- Use structured logging for debugging
+
+## Performance
+
+### Database Queries
+- Use indexes (defined in migrations)
+- Limit result sets (`.limit()`)
+- Use `.select()` to fetch only needed columns
+- Avoid N+1 queries (use joins or batch queries)
+
+### Next.js
+- Use Server Components by default (reduces client bundle)
+- Use `next/image` for images
+- Implement loading states (`loading.tsx`)
+- Use Suspense boundaries for async data
+
+## Enforcement
+
+### Code Review
+- All PRs must be reviewed before merging
+- Check for rule violations:
+  - Raw SQL in app code
+  - Secrets in commits
+  - Missing tests/documentation
+  - RLS policy gaps
+
+### Automated Checks (Future)
+- Pre-commit hooks to check for secrets
+- Linting rules for TypeScript strictness
+- CI/CD checks for migration file locations
+- Automated tests in CI pipeline
+
+---
+
+## Quick Reference
+
+**DO:**
+- ✅ Use Supabase client for all DB access
+- ✅ Put schema changes in migrations
+- ✅ Use `NEXT_PUBLIC_` only for browser-safe vars
+- ✅ Add tests or update `MANUAL_TESTING.md`
+- ✅ Use App Router, TypeScript, Tailwind
+
+**DON'T:**
+- ❌ Write raw SQL in app code
+- ❌ Commit secrets to Git
+- ❌ Edit applied migrations
+- ❌ Skip testing/documentation
+- ❌ Use Pages Router or custom CSS
+
+---
+
+**Last Updated:** 2024-12-30
+**Maintainer:** Development Team
+
