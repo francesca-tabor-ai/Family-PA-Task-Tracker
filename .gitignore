@@ -7,3 +7,5 @@ coverage/
 .DS_Store
 .secrets.env
 TWILIO_WHATSAPP_SETUP.md
+.vercel
+.env*.local

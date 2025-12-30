@@ -1,0 +1,16 @@
+.next/server/app/_not-found.html
+.next/server/app/_not-found.meta
+.next/server/app/_not-found.rsc
+.next/server/app/_not-found/page.js
+.next/server/app/_not-found/page.js.nft.json
+.next/server/app/_not-found/page_client-reference-manifest.js
+.next/server/app/api/tasks/[id]/route.js
+.next/server/app/api/tasks/[id]/route.js.nft.json
+.next/server/app/api/tasks/route.js
+.next/server/app/api/tasks/route.js.nft.json
+.next/server/app/index.html
+.next/server/app/index.meta
+.next/server/app/index.rsc
+.next/server/app/page.js
+.next/server/app/page.js.nft.json
+.next/server/app/page_client-reference-manifest.js
