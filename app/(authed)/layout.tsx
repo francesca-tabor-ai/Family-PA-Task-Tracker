@@ -2,6 +2,9 @@ import { fetchCategoryTree } from "@/lib/supabase/queries/categories";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import type { CategoryTreeNode } from "@/lib/types/category";
 
+// Force dynamic rendering - this layout requires authenticated data from Supabase
+export const dynamic = 'force-dynamic'
+
 export default async function AuthedLayout({
   children,
 }: {

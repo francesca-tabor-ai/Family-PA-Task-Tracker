@@ -1,6 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
+// Force dynamic rendering - this route requires authentication and runtime data
+export const dynamic = 'force-dynamic'
+
 // GET /api/debug/categories - Diagnostic endpoint to check category data
 export async function GET() {
   const supabase = createClient()

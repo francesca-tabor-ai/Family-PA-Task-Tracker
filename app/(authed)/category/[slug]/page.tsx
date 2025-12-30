@@ -4,6 +4,9 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Category } from "@/lib/types/category";
 
+// Force dynamic rendering - this page requires authenticated data from Supabase
+export const dynamic = 'force-dynamic'
+
 interface CategoryPageProps {
   params: {
     slug: string;

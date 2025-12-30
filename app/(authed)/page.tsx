@@ -2,6 +2,9 @@ import NotionTaskList from "@/components/NotionTaskList";
 import { fetchCategoryTree } from "@/lib/supabase/queries/categories";
 import type { CategoryTreeNode } from "@/lib/types/category";
 
+// Force dynamic rendering - this page requires authenticated data from Supabase
+export const dynamic = 'force-dynamic'
+
 export default async function Page() {
   // Fetch categories for task form
   let categories: CategoryTreeNode[] = [];
