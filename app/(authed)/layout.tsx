@@ -1,5 +1,5 @@
 import { fetchCategoryTree } from "@/lib/supabase/queries/categories";
-import SidebarCategories from "@/components/SidebarCategories";
+import DashboardSidebar from "@/components/DashboardSidebar";
 import type { CategoryTreeNode } from "@/lib/types/category";
 
 export default async function AuthedLayout({
@@ -21,8 +21,7 @@ export default async function AuthedLayout({
     <div className="flex min-h-screen bg-brand-background">
       {/* Sidebar */}
       <aside className="w-64 border-r border-brand-button-light bg-white p-4">
-        <h2 className="text-heading-3 text-brand-text mb-4">Categories</h2>
-        <SidebarCategories categories={categories} />
+        <DashboardSidebar categories={categories} />
       </aside>
 
       {/* Main Content */}

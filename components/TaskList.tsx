@@ -2,47 +2,113 @@
 
 import { useMemo, useState, useEffect } from "react";
 import AddTaskForm from "./AddTaskForm";
+import type { CategoryTreeNode } from "@/lib/types/category";
+import type { Task } from "@/lib/supabase/queries/tasks";
 
-type Task = {
-  id: string;
-  title: string;
-  status: "open" | "done";
-  createdAt: string;
-};
+interface TaskListProps {
+  categories: CategoryTreeNode[];
+}
 
-export default function TaskList() {
-  const [tasks, setTasks] = useState<Task[]>([
-    { id: "1", title: "Book dentist appointment", status: "open", createdAt: new Date().toISOString() },
-    { id: "2", title: "Submit expense report", status: "done", createdAt: new Date().toISOString() }
-  ]);
+export default function TaskList({ categories }: TaskListProps) {
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(true);
   const [newTaskIds, setNewTaskIds] = useState<Set<string>>(new Set());
 
-  const openTasks = useMemo(() => tasks.filter(t => t.status === "open"), [tasks]);
-  const doneTasks = useMemo(() => tasks.filter(t => t.status === "done"), [tasks]);
+  // Fetch tasks from API
+  useEffect(() => {
+    async function loadTasks() {
+      try {
+        const response = await fetch("/api/tasks");
+        if (response.ok) {
+          const data = await response.json();
+          setTasks(data);
+        }
+      } catch (error) {
+        console.error("Error loading tasks:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadTasks();
+  }, []);
 
-  function addTask(title: string) {
-    const t: Task = { id: crypto.randomUUID(), title, status: "open", createdAt: new Date().toISOString() };
-    setTasks(prev => [t, ...prev]);
-    setNewTaskIds(prev => new Set([...prev, t.id]));
-    // Remove highlight after animation
-    setTimeout(() => {
-      setNewTaskIds(prev => {
-        const next = new Set(prev);
-        next.delete(t.id);
-        return next;
+  const openTasks = useMemo(() => 
+    tasks.filter(t => t.status === "open" || t.status === "inbox"), 
+    [tasks]
+  );
+  const doneTasks = useMemo(() => 
+    tasks.filter(t => t.status === "done" || t.status === "completed"), 
+    [tasks]
+  );
+
+  async function addTask(taskData: { title: string; category_id: string; subcategory_id?: string; description?: string }) {
+    try {
+      const response = await fetch("/api/tasks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(taskData),
       });
-    }, 1500);
+
+      if (response.ok) {
+        const newTask = await response.json();
+        setTasks(prev => [newTask, ...prev]);
+        setNewTaskIds(prev => new Set([...prev, newTask.id]));
+        
+        // Remove highlight after animation
+        setTimeout(() => {
+          setNewTaskIds(prev => {
+            const next = new Set(prev);
+            next.delete(newTask.id);
+            return next;
+          });
+        }, 1500);
+      } else {
+        const error = await response.json();
+        alert(`Error creating task: ${error.error || "Unknown error"}`);
+      }
+    } catch (error) {
+      console.error("Error creating task:", error);
+      alert("Failed to create task. Please try again.");
+    }
   }
 
-  function toggle(id: string) {
-    setTasks(prev =>
-      prev.map(t => (t.id === id ? { ...t, status: t.status === "open" ? "done" : "open" } : t))
+  async function toggle(id: string) {
+    const task = tasks.find(t => t.id === id);
+    if (!task) return;
+
+    const newStatus = task.status === "open" || task.status === "inbox" ? "done" : "open";
+
+    try {
+      const response = await fetch(`/api/tasks/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (response.ok) {
+        const updatedTask = await response.json();
+        setTasks(prev =>
+          prev.map(t => (t.id === id ? updatedTask : t))
+        );
+      }
+    } catch (error) {
+      console.error("Error updating task:", error);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="card">
+        <p className="text-sm font-rubik text-brand-text/60 text-center py-8">
+          Loading tasks...
+        </p>
+      </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <AddTaskForm onAdd={addTask} />
+      <AddTaskForm onAdd={addTask} categories={categories} />
 
       <section className="card card-elevated">
         <div className="flex items-center gap-2 mb-6">
@@ -53,14 +119,14 @@ export default function TaskList() {
           {openTasks.map((t, index) => (
             <li 
               key={t.id} 
-              className={`task-item flex items-center gap-4 rounded-button border border-brand-button-light bg-white p-4 animate-fade-in ${
+              className={`task-item flex items-start gap-4 rounded-button border border-brand-button-light bg-white p-4 animate-fade-in ${
                 newTaskIds.has(t.id) ? "task-item-new" : ""
               }`}
               style={{ animationDelay: `${index * 0.05}s` }}
             >
               <button
                 onClick={() => toggle(t.id)}
-                className="checkbox-custom flex-shrink-0"
+                className="checkbox-custom flex-shrink-0 mt-1"
                 aria-label={`Mark "${t.title}" as done`}
                 type="button"
               >
@@ -73,7 +139,12 @@ export default function TaskList() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                 </svg>
               </button>
-              <span className="flex-1 text-base font-rubik text-brand-text font-normal">{t.title}</span>
+              <div className="flex-1">
+                <span className="text-base font-rubik text-brand-text font-normal block">{t.title}</span>
+                {t.description && (
+                  <p className="text-sm font-rubik text-brand-text/60 mt-1">{t.description}</p>
+                )}
+              </div>
             </li>
           ))}
           {openTasks.length === 0 && (
@@ -99,12 +170,12 @@ export default function TaskList() {
             {doneTasks.map((t, index) => (
               <li 
                 key={t.id} 
-                className="task-item flex items-center gap-4 rounded-button border border-brand-button-light bg-white/50 p-4 animate-fade-in"
+                className="task-item flex items-start gap-4 rounded-button border border-brand-button-light bg-white/50 p-4 animate-fade-in"
                 style={{ animationDelay: `${index * 0.05}s` }}
               >
                 <button
                   onClick={() => toggle(t.id)}
-                  className="checkbox-custom checked flex-shrink-0"
+                  className="checkbox-custom checked flex-shrink-0 mt-1"
                   aria-label={`Reopen "${t.title}"`}
                   type="button"
                 >
@@ -117,7 +188,12 @@ export default function TaskList() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                   </svg>
                 </button>
-                <span className="flex-1 text-base font-rubik text-brand-text/50 line-through font-light">{t.title}</span>
+                <div className="flex-1">
+                  <span className="text-base font-rubik text-brand-text/50 line-through font-light block">{t.title}</span>
+                  {t.description && (
+                    <p className="text-sm font-rubik text-brand-text/40 line-through mt-1">{t.description}</p>
+                  )}
+                </div>
               </li>
             ))}
           </ul>
@@ -126,4 +202,3 @@ export default function TaskList() {
     </div>
   );
 }
-

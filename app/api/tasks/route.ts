@@ -50,7 +50,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
-  const { title, category, assignee_user_id, due_at } = body
+  const { title, category_id, subcategory_id, description, assignee_user_id, due_at } = body
 
   // Validate required fields
   if (!title || typeof title !== 'string' || title.trim().length === 0) {
@@ -60,6 +60,75 @@ export async function POST(request: Request) {
     )
   }
 
+  // Validate category_id (required for manual task creation)
+  if (!category_id || typeof category_id !== 'string') {
+    return NextResponse.json(
+      { error: 'Category is required' },
+      { status: 400 }
+    )
+  }
+
+  // Verify category exists and belongs to the family
+  const { data: category, error: categoryError } = await supabase
+    .from('categories')
+    .select('id, household_id')
+    .eq('id', category_id)
+    .eq('is_active', true)
+    .single()
+
+  if (categoryError || !category) {
+    return NextResponse.json(
+      { error: 'Invalid category' },
+      { status: 400 }
+    )
+  }
+
+  // Verify category belongs to the family
+  if (category.household_id !== familyMember.family_id) {
+    return NextResponse.json(
+      { error: 'Category does not belong to your family' },
+      { status: 403 }
+    )
+  }
+
+  // Determine final category_id: if subcategory is selected, use subcategory_id; otherwise use category_id
+  let finalCategoryId = category_id;
+
+  // If subcategory_id is provided, verify it exists and is a child of the category
+  if (subcategory_id) {
+    const { data: subcategory, error: subcategoryError } = await supabase
+      .from('categories')
+      .select('id, parent_id, household_id')
+      .eq('id', subcategory_id)
+      .eq('is_active', true)
+      .single()
+
+    if (subcategoryError || !subcategory) {
+      return NextResponse.json(
+        { error: 'Invalid subcategory' },
+        { status: 400 }
+      )
+    }
+
+    if (subcategory.parent_id !== category_id) {
+      return NextResponse.json(
+        { error: 'Subcategory does not belong to the selected category' },
+        { status: 400 }
+      )
+    }
+
+    if (subcategory.household_id !== familyMember.family_id) {
+      return NextResponse.json(
+        { error: 'Subcategory does not belong to your family' },
+        { status: 403 }
+      )
+    }
+
+    // Use subcategory's ID as the category_id (since subcategories are also categories)
+    // TODO: Add subcategory_id field to tasks table for proper parent/subcategory tracking
+    finalCategoryId = subcategory_id;
+  }
+
   // Create task
   // Note: created_by_user_id is enforced by trigger, family_id is required
   const { data: task, error } = await supabase
@@ -67,7 +136,9 @@ export async function POST(request: Request) {
     .insert({
       family_id: familyMember.family_id,
       title: title.trim(),
-      category: category || null,
+      description: description?.trim() || null,
+      category_id: finalCategoryId,
+      category: null, // Legacy field - keep null
       assignee_user_id: assignee_user_id || null,
       due_at: due_at || null,
       status: 'open', // Default status
