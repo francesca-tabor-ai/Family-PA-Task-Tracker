@@ -71,7 +71,7 @@ export async function POST(request: Request) {
   // Verify category exists and belongs to the family
   const { data: category, error: categoryError } = await supabase
     .from('categories')
-    .select('id, household_id')
+    .select('id, household_id, default_status')
     .eq('id', category_id)
     .eq('is_active', true)
     .single()
@@ -93,12 +93,13 @@ export async function POST(request: Request) {
 
   // Determine final category_id: if subcategory is selected, use subcategory_id; otherwise use category_id
   let finalCategoryId = category_id;
+  let defaultStatus = 'open'; // Default fallback
 
   // If subcategory_id is provided, verify it exists and is a child of the category
   if (subcategory_id) {
     const { data: subcategory, error: subcategoryError } = await supabase
       .from('categories')
-      .select('id, parent_id, household_id')
+      .select('id, parent_id, household_id, default_status')
       .eq('id', subcategory_id)
       .eq('is_active', true)
       .single()
@@ -127,6 +128,16 @@ export async function POST(request: Request) {
     // Use subcategory's ID as the category_id (since subcategories are also categories)
     // TODO: Add subcategory_id field to tasks table for proper parent/subcategory tracking
     finalCategoryId = subcategory_id;
+    
+    // Use subcategory's default_status if available
+    if (subcategory.default_status) {
+      defaultStatus = subcategory.default_status;
+    }
+  } else {
+    // If no subcategory, check the category's default_status
+    if (category.default_status) {
+      defaultStatus = category.default_status;
+    }
   }
 
   // Create task
@@ -141,7 +152,7 @@ export async function POST(request: Request) {
       category: null, // Legacy field - keep null
       assignee_user_id: assignee_user_id || null,
       due_at: due_at || null,
-      status: 'open', // Default status
+      status: defaultStatus, // Use default_status from category/subcategory
       source_type: 'manual', // Manual creation via UI
     })
     .select()

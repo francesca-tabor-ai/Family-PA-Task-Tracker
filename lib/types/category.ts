@@ -9,6 +9,7 @@ export interface Category {
   parent_id: string | null;     // Reference to parent category (null for top-level)
   sort_order: number;            // Order for display within the same level
   is_active: boolean;            // Whether category is active
+  default_status: string | null; // Default task status when creating tasks under this category
   created_at: string;            // ISO 8601 timestamp
   updated_at: string;            // ISO 8601 timestamp
 }
@@ -116,6 +117,7 @@ export function flattenCategoryTree(tree: CategoryTreeNode[]): Category[] {
       parent_id: node.parent_id,
       sort_order: node.sort_order,
       is_active: node.is_active,
+      default_status: node.default_status ?? null,
       created_at: node.created_at,
       updated_at: node.updated_at,
     });
