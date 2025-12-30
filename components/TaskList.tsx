@@ -153,7 +153,7 @@ export default function TaskList({ categories }: TaskListProps) {
                 No open tasks—nice work 🎉
               </p>
               <p className="empty-state-text text-sm mt-2">
-                Voice-captured tasks will appear here.
+                <strong>Tip:</strong> You can add tasks by sending a WhatsApp voice note. Click the WhatsApp link in the top-right corner to join the group.
               </p>
             </div>
           )}
