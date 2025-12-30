@@ -19,13 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
           </header>
 
-          <main className="mx-auto max-w-3xl px-4 py-8">{children}</main>
-
-          <footer className="mx-auto max-w-3xl px-4 py-8 bg-white border-t border-brand-button-light">
-            <p className="text-xs font-rubik text-brand-text/60 font-light">
-              Backend writes should happen via your secured API route (not directly from GPT).
-            </p>
-          </footer>
+          <main className="mx-auto max-w-3xl px-4 py-8 pb-16">{children}</main>
         </div>
       </body>
     </html>
