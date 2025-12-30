@@ -1,5 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { transformTaskRowToTask } from '@/lib/utils/task-transform'
+import type { TaskRow } from '@/lib/utils/task-transform'
 
 // GET /api/tasks - Fetch all tasks (filtered by RLS)
 export async function GET() {
@@ -21,7 +23,10 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  return NextResponse.json(tasks || [])
+  // Transform database rows to API format
+  const transformedTasks = (tasks || []).map((row: TaskRow) => transformTaskRowToTask(row))
+
+  return NextResponse.json(transformedTasks)
 }
 
 // POST /api/tasks - Create new task
@@ -50,7 +55,17 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
-  const { title, category, assignee_user_id, due_at } = body
+  const { 
+    title, 
+    description,
+    status = 'inbox',
+    categories = [],
+    people = [],
+    dueDate,
+    scheduledFor,
+    highRisk = false,
+    assignee_user_id,
+  } = body
 
   // Validate required fields
   if (!title || typeof title !== 'string' || title.trim().length === 0) {
@@ -60,6 +75,50 @@ export async function POST(request: Request) {
     )
   }
 
+  // Validate status
+  const validStatuses = ['inbox', 'waiting', 'scheduled', 'in_progress', 'completed', 'delegated']
+  if (!validStatuses.includes(status)) {
+    return NextResponse.json(
+      { error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` },
+      { status: 400 }
+    )
+  }
+
+  // Validate categories (must be array of strings with valid paths)
+  if (categories && !Array.isArray(categories)) {
+    return NextResponse.json(
+      { error: 'Categories must be an array' },
+      { status: 400 }
+    )
+  }
+
+  if (categories && categories.length > 0) {
+    // Validate each category path exists in the categories table
+    const { data: validCategories, error: categoryError } = await supabase
+      .from('categories')
+      .select('path')
+      .or(`family_id.is.null,family_id.eq.${familyMember.family_id}`)
+      .eq('is_active', true)
+      .in('path', categories)
+
+    if (categoryError) {
+      return NextResponse.json(
+        { error: 'Failed to validate categories' },
+        { status: 500 }
+      )
+    }
+
+    const validPaths = (validCategories || []).map(c => c.path)
+    const invalidPaths = categories.filter((path: string) => !validPaths.includes(path))
+
+    if (invalidPaths.length > 0) {
+      return NextResponse.json(
+        { error: `Invalid category paths: ${invalidPaths.join(', ')}` },
+        { status: 400 }
+      )
+    }
+  }
+
   // Create task
   // Note: created_by_user_id is enforced by trigger, family_id is required
   const { data: task, error } = await supabase
@@ -67,11 +126,15 @@ export async function POST(request: Request) {
     .insert({
       family_id: familyMember.family_id,
       title: title.trim(),
-      category: category || null,
+      description: description || null,
+      status,
+      categories: categories || [],
+      people: people || [],
+      due_at: dueDate || null,
+      scheduled_for: scheduledFor || null,
+      high_risk: highRisk || false,
+      source: 'manual', // Manual creation via UI
       assignee_user_id: assignee_user_id || null,
-      due_at: due_at || null,
-      status: 'open', // Default status
-      source_type: 'manual', // Manual creation via UI
     })
     .select()
     .single()
@@ -80,6 +143,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  return NextResponse.json(task, { status: 201 })
+  // Transform to API format
+  const transformedTask = transformTaskRowToTask(task as TaskRow)
+
+  return NextResponse.json(transformedTask, { status: 201 })
 }
 
