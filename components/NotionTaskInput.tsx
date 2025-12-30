@@ -58,7 +58,7 @@ export default function NotionTaskInput({ onAdd, categories }: NotionTaskInputPr
     <div className="mb-8">
       {/* Main input - Notion style */}
       <div className="flex items-center gap-2 group">
-        <div className="flex-1 flex items-center gap-2 px-3 py-2 rounded-notionInput border border-transparent hover:border-notion-border transition-colors">
+        <div className="notion-input-container flex-1 flex items-center gap-2">
           <input
             ref={inputRef}
             type="text"

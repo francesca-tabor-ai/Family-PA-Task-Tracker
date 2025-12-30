@@ -54,7 +54,7 @@ export default function NotionSection({
         type="button"
       >
         <svg
-          className={`w-3 h-3 transition-transform ${isExpanded ? "rotate-90" : ""}`}
+          className={`w-3 h-3 transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -67,7 +67,12 @@ export default function NotionSection({
       </button>
 
       {isExpanded && (
-        <div className="mt-2">
+        <div 
+          className="mt-2"
+          style={{
+            animation: 'fadeIn 200ms ease-out'
+          }}
+        >
           {children}
         </div>
       )}
