@@ -45,6 +45,15 @@ These rules enforce consistency and prevent drift in the codebase. Follow them s
 - Client-side: use `createBrowserClient` from `@supabase/ssr`
 - Edge Functions: use `createClient` from `@supabase/supabase-js` with service role key
 
+## AI Security Principles (Critical)
+- **NEVER allow AI logic to write directly to the database** - all writes must go through authenticated backend routes
+- **The database is the single source of truth** - AI may parse, classify, request actions, but never invent categories, bypass validation, or assume database state
+- **Always validate AI outputs** - validate IDs, slugs, and enums against the database before use
+- **Fail safely** - if a value is uncertain or invalid, create task without optional fields, never block task creation
+- **Low confidence handling** - if classification confidence is low, ask clarification question, do not guess
+- **Household scoping** - always validate `household_id` matches, never cross household boundaries
+- See `docs/02-architecture/AI_SECURITY_PRINCIPLES.md` for complete guidelines
+
 ### Row Level Security (RLS)
 - **RLS must be enabled** on all user-facing tables
 - Policies must be defined in migrations, not application code
@@ -194,6 +203,7 @@ supabase/
 
 ### Required Documentation
 - `README.md` - Project overview, setup instructions
+- `docs/02-architecture/AI_SECURITY_PRINCIPLES.md` - ⭐ **Core security-first principles for AI-assisted features** (required reading)
 - `BUILD_PLAN.md` - Implementation phases and checklist
 - `MANUAL_TESTING.md` - Manual testing procedures
 - `ENV_SETUP.md` - Environment variable configuration
