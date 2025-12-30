@@ -62,5 +62,53 @@
   .btn-ghost {
     @apply bg-transparent border border-brand-button-dark text-brand-text hover:bg-brand-button-light;
   }
+
+  .btn-primary-action {
+    @apply bg-brand-primary text-white hover:bg-brand-text/90 active:scale-95;
+    @apply shadow-md hover:shadow-lg;
+  }
+
+  .card-elevated {
+    @apply shadow-card-elevated;
+  }
+
+  .task-item {
+    @apply transition-all duration-200;
+  }
+
+  .task-item:hover {
+    @apply shadow-card;
+  }
+
+  .task-item-new {
+    animation: highlight 1.5s ease-in-out;
+  }
+
+  .checkbox-custom {
+    @apply w-6 h-6 rounded border-2 border-brand-button-dark cursor-pointer;
+    @apply transition-all duration-200;
+    @apply flex items-center justify-center;
+    @apply hover:border-brand-primary hover:bg-brand-button-light;
+  }
+
+  .checkbox-custom.checked {
+    @apply bg-brand-primary border-brand-primary;
+  }
+
+  .checkbox-custom.checked svg {
+    @apply opacity-100;
+  }
+
+  .checkbox-custom:not(.checked) svg {
+    @apply opacity-0;
+  }
+
+  .empty-state {
+    @apply text-center py-8 px-4;
+  }
+
+  .empty-state-text {
+    @apply text-brand-text/50 font-light;
+  }
 }
 
