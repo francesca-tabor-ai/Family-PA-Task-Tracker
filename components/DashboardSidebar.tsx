@@ -91,7 +91,11 @@ export default function DashboardSidebar({ categories }: DashboardSidebarProps):
   return (
     <nav className="w-full">
       <div className="mb-6">
-        <h2 className="text-heading-3 text-brand-text mb-4">Dashboard</h2>
+        {/* App Name */}
+        <h1 className="text-heading-2 text-brand-text mb-2">Family PA Task Tracker</h1>
+        <p className="text-xs font-rubik text-brand-text/60 font-light mb-4">
+          Add tasks, see what's open, and keep life admin moving.
+        </p>
         
         {/* Main Navigation */}
         <div className="space-y-1 mb-6">
@@ -114,6 +118,21 @@ export default function DashboardSidebar({ categories }: DashboardSidebarProps):
             <div className="w-6" />
             <span>All Categories</span>
           </Link>
+          
+          {/* Divider */}
+          <div className="border-t border-brand-button-light my-2"></div>
+          
+          {/* WhatsApp Link */}
+          <a
+            href="https://chat.whatsapp.com/HGu60zYZPYLG6bWGu0qNJ7"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center py-2 px-3 rounded hover:bg-gray-100 text-[#128c7e]"
+            title="Send a voice note to create a task"
+          >
+            <div className="w-6" />
+            <span>🎙️ Add via WhatsApp</span>
+          </a>
         </div>
 
         {/* Categories Section */}

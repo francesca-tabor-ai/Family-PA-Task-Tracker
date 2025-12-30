@@ -52,13 +52,18 @@ export default function AddTaskForm({ onAdd, categories }: AddTaskFormProps) {
     >
       <div className="flex flex-col gap-3">
         {/* Title Input */}
-        <input
-          className="w-full rounded-button border-2 border-brand-primary/20 bg-white px-5 py-4 text-base font-rubik text-brand-text placeholder:text-brand-text/40 outline-none transition-all duration-200 focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
-          placeholder="Add a task (e.g., Book dentist)"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          autoFocus
-        />
+        <div>
+          <input
+            className="w-full rounded-button border-2 border-brand-primary/20 bg-white px-5 py-4 text-base font-rubik text-brand-text placeholder:text-brand-text/40 outline-none transition-all duration-200 focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+            placeholder="Add a task (e.g., Book dentist)"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            autoFocus
+          />
+          <p className="mt-1 text-xs font-rubik text-brand-text/50">
+            You can also add tasks by voice via WhatsApp 🎙️
+          </p>
+        </div>
 
         {/* Expand/Collapse Button */}
         <button

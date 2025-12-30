@@ -1,6 +1,5 @@
 import { fetchCategoryTree } from "@/lib/supabase/queries/categories";
 import DashboardSidebar from "@/components/DashboardSidebar";
-import AppHeader from "@/components/AppHeader";
 import type { CategoryTreeNode } from "@/lib/types/category";
 
 export default async function AuthedLayout({
@@ -27,7 +26,6 @@ export default async function AuthedLayout({
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
-        <AppHeader />
         <div className="mx-auto max-w-3xl px-4 py-8">
           {children}
         </div>
