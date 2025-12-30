@@ -24,15 +24,16 @@ function CategoryItem({ category, level, expandedCategories, pathname, onToggle 
 
   return (
     <div className="w-full">
-      <div className="flex items-center" style={{ paddingLeft: `${level * 1}rem` }}>
+      <div className="flex items-center gap-1" style={{ paddingLeft: `${level * 0.75}rem` }}>
         {hasChildren && (
           <button
             onClick={() => onToggle(category.id)}
-            className="mr-2 p-1 hover:bg-gray-100 rounded"
+            className="p-0.5 hover:bg-notion-hover rounded-notion transition-colors"
             aria-label={isExpanded ? "Collapse" : "Expand"}
+            type="button"
           >
             <svg
-              className={`w-4 h-4 transition-transform ${isExpanded ? "rotate-90" : ""}`}
+              className={`w-3 h-3 text-notion-textMuted transition-transform ${isExpanded ? "rotate-90" : ""}`}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -41,18 +42,20 @@ function CategoryItem({ category, level, expandedCategories, pathname, onToggle 
             </svg>
           </button>
         )}
-        {!hasChildren && <div className="w-6" />}
+        {!hasChildren && <div className="w-4" />}
         <Link
           href={`/category/${category.slug}`}
-          className={`flex-1 py-2 px-3 rounded hover:bg-gray-100 ${
-            active ? "bg-gray-200 font-semibold" : ""
+          className={`flex-1 px-2 py-1.5 rounded-notion text-sm transition-colors ${
+            active 
+              ? "bg-notion-hover text-notion-text font-medium" 
+              : "text-notion-textMuted hover:bg-notion-hover hover:text-notion-text"
           }`}
         >
           {category.name}
         </Link>
       </div>
       {hasChildren && isExpanded && (
-        <div className="ml-6">
+        <div className="ml-4">
           {category.children.map((child) => (
             <CategoryItem
               key={child.id}
@@ -90,72 +93,66 @@ export default function DashboardSidebar({ categories }: DashboardSidebarProps):
 
   return (
     <nav className="w-full">
-      <div className="mb-6">
-        {/* App Name */}
-        <h1 className="text-heading-2 text-brand-text mb-2">Family PA Task Tracker</h1>
-        <p className="text-xs font-rubik text-brand-text/60 font-light mb-4">
-          Add tasks, see what's open, and keep life admin moving.
-        </p>
-        
-        {/* Main Navigation */}
-        <div className="space-y-1 mb-6">
+      <div className="mb-8">
+        {/* Main Navigation - Notion style */}
+        <div className="space-y-0.5 mb-6">
           <Link
             href="/"
-            className={`flex items-center py-2 px-3 rounded hover:bg-gray-100 ${
-              isAllTasks ? "bg-gray-200 font-semibold" : ""
+            className={`flex items-center gap-2 px-2 py-1.5 rounded-notion text-sm transition-colors ${
+              isAllTasks 
+                ? "bg-notion-hover text-notion-text font-medium" 
+                : "text-notion-textMuted hover:bg-notion-hover hover:text-notion-text"
             }`}
           >
-            <div className="w-6" />
             <span>All Tasks</span>
           </Link>
           
           <Link
             href="/categories"
-            className={`flex items-center py-2 px-3 rounded hover:bg-gray-100 ${
-              isAllCategories ? "bg-gray-200 font-semibold" : ""
+            className={`flex items-center gap-2 px-2 py-1.5 rounded-notion text-sm transition-colors ${
+              isAllCategories 
+                ? "bg-notion-hover text-notion-text font-medium" 
+                : "text-notion-textMuted hover:bg-notion-hover hover:text-notion-text"
             }`}
           >
-            <div className="w-6" />
-            <span>All Categories</span>
+            <span>Categories</span>
           </Link>
           
           {/* Divider */}
-          <div className="border-t border-brand-button-light my-2"></div>
+          <div className="border-t border-notion-border my-2"></div>
           
           {/* WhatsApp Link */}
           <a
             href="https://chat.whatsapp.com/HGu60zYZPYLG6bWGu0qNJ7"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center py-2 px-3 rounded hover:bg-gray-100 text-[#128c7e]"
+            className="flex items-center gap-2 px-2 py-1.5 rounded-notion text-sm text-[#128c7e] hover:bg-notion-hover transition-colors"
             title="Send a voice note to create a task"
           >
-            <div className="w-6" />
             <span>🎙️ Add via WhatsApp</span>
           </a>
         </div>
 
-        {/* Categories Section */}
-        <div className="border-t border-brand-button-light pt-4">
-          <h3 className="text-sm font-semibold text-brand-text/60 mb-2 uppercase tracking-wide">
+        {/* Categories Section - Notion style */}
+        <div className="border-t border-notion-border pt-4">
+          <div className="text-xs font-medium text-notion-textMuted uppercase tracking-wide mb-2 px-2">
             Categories
-          </h3>
+          </div>
           
-          <div className="space-y-1">
-            <div className="w-full">
-              <Link
-                href="/category/uncategorised"
-                className={`flex items-center py-2 px-3 rounded hover:bg-gray-100 ${
-                  pathname === "/category/uncategorised" ? "bg-gray-200 font-semibold" : ""
-                }`}
-              >
-                <div className="w-6" />
-                <span>Uncategorised</span>
-              </Link>
-            </div>
+          <div className="space-y-0.5">
+            <Link
+              href="/category/uncategorised"
+              className={`flex items-center gap-2 px-2 py-1.5 rounded-notion text-sm transition-colors ${
+                pathname === "/category/uncategorised" 
+                  ? "bg-notion-hover text-notion-text font-medium" 
+                  : "text-notion-textMuted hover:bg-notion-hover hover:text-notion-text"
+              }`}
+            >
+              <span>Uncategorised</span>
+            </Link>
             
             {categories.length === 0 ? (
-              <div className="p-4 text-sm text-gray-500">
+              <div className="px-2 py-2 text-xs text-notion-textMuted">
                 No categories available
               </div>
             ) : (

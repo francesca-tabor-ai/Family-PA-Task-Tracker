@@ -18,15 +18,15 @@ export default async function AuthedLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-brand-background">
-      {/* Sidebar */}
-      <aside className="w-64 border-r border-brand-button-light bg-white p-4">
+    <div className="flex min-h-screen bg-notion-bg">
+      {/* Sidebar - Hidden on mobile */}
+      <aside className="hidden md:block w-64 border-r border-notion-border bg-notion-bg p-6">
         <DashboardSidebar categories={categories} />
       </aside>
 
-      {/* Main Content */}
+      {/* Main Content - Notion centered layout */}
       <main className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-3xl px-4 py-8">
+        <div className="mx-auto max-w-notion px-6 py-12 md:py-notion">
           {children}
         </div>
       </main>

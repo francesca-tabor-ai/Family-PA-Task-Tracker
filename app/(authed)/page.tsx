@@ -1,4 +1,4 @@
-import TaskList from "@/components/TaskList";
+import NotionTaskList from "@/components/NotionTaskList";
 import { fetchCategoryTree } from "@/lib/supabase/queries/categories";
 import type { CategoryTreeNode } from "@/lib/types/category";
 
@@ -12,8 +12,16 @@ export default async function Page() {
   }
 
   return (
-    <div className="space-y-6">
-      <TaskList categories={categories} />
+    <div>
+      {/* Page Header - Notion style */}
+      <div className="mb-12">
+        <h1 className="mb-2">Family PA Task Tracker</h1>
+        <p className="text-base text-notion-textMuted">
+          Add tasks, see what's open, and keep life admin moving.
+        </p>
+      </div>
+
+      <NotionTaskList categories={categories} />
     </div>
   );
 }
