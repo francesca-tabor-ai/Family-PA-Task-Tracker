@@ -65,7 +65,7 @@ POST /whatsapp-webhook?secret=YOUR_SECRET
 Content-Type: application/x-www-form-urlencoded
 
 MessageSid=SM1234567890abcdef
-AccountSid=ACcd43694a6d660b6b18a75f734dabe09d
+AccountSid=ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 From=whatsapp:+41791234567
 To=whatsapp:+14155559876
 Body=
@@ -80,7 +80,7 @@ POST /whatsapp-webhook?secret=YOUR_SECRET
 Content-Type: application/x-www-form-urlencoded
 
 MessageSid=SM9876543210fedcba
-AccountSid=ACcd43694a6d660b6b18a75f734dabe09d
+AccountSid=ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 From=whatsapp:+41791234567
 To=whatsapp:+14155559876
 Body=Remind me to buy groceries tomorrow
@@ -93,7 +93,7 @@ POST /whatsapp-webhook?secret=YOUR_SECRET
 Content-Type: application/x-www-form-urlencoded
 
 MessageSid=SMabcdef1234567890
-AccountSid=ACcd43694a6d660b6b18a75f734dabe09d
+AccountSid=ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 From=whatsapp:+41791234567
 To=whatsapp:+14155559876
 Body=
@@ -155,12 +155,12 @@ MediaContentType1=audio/ogg
 
 **Production:**
 ```
-https://zxksjggfomhdqskinvof.functions.supabase.co/whatsapp-webhook?secret=sz0P9Ho3sqhPS6foQXSmowLHWtqz90K5
+https://YOUR_PROJECT_REF.functions.supabase.co/whatsapp-webhook?secret=YOUR_WEBHOOK_SHARED_SECRET
 ```
 
 **Local Testing:**
 ```
-http://127.0.0.1:54321/functions/v1/whatsapp-webhook?secret=sz0P9Ho3sqhPS6foQXSmowLHWtqz90K5
+http://127.0.0.1:54321/functions/v1/whatsapp-webhook?secret=YOUR_WEBHOOK_SHARED_SECRET
 ```
 
 ### Security
