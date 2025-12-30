@@ -1,13 +1,21 @@
 import { fetchCategoryTree } from "@/lib/supabase/queries/categories";
 import SidebarCategories from "@/components/SidebarCategories";
+import type { CategoryTreeNode } from "@/lib/types/category";
 
 export default async function AuthedLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // Fetch categories for sidebar
-  const categories = await fetchCategoryTree();
+  // Fetch categories for sidebar with error handling
+  let categories: CategoryTreeNode[] = [];
+  try {
+    categories = await fetchCategoryTree();
+  } catch (error) {
+    // Log error but don't crash the page
+    console.error("Error fetching categories for sidebar:", error);
+    // categories remains empty array, sidebar will show "No categories available"
+  }
 
   return (
     <div className="flex min-h-screen bg-brand-background">
