@@ -11,23 +11,28 @@ export async function fetchCategories(householdId?: string) {
 
   // Get user's household_id if not provided
   if (!householdId) {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) {
+    try {
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      if (sessionError || !session) {
+        return []
+      }
+
+      const { data: familyMember, error: familyError } = await supabase
+        .from('family_members')
+        .select('family_id')
+        .eq('user_id', session.user.id)
+        .limit(1)
+        .maybeSingle()
+
+      if (familyError || !familyMember) {
+        return []
+      }
+
+      householdId = familyMember.family_id
+    } catch (error) {
+      console.error('Error fetching household_id:', error)
       return []
     }
-
-    const { data: familyMember } = await supabase
-      .from('family_members')
-      .select('family_id')
-      .eq('user_id', session.user.id)
-      .limit(1)
-      .single()
-
-    if (!familyMember) {
-      return []
-    }
-
-    householdId = familyMember.family_id
   }
 
   // Fetch all categories for the household

@@ -1,7 +1,8 @@
 import { fetchCategoryBySlug, fetchCategoryChildren } from "@/lib/supabase/queries/categories";
-import { fetchTasksByCategory, groupTasksByStatus, getTaskCountsByStatus } from "@/lib/supabase/queries/tasks";
+import { fetchTasksByCategory, groupTasksByStatus, getTaskCountsByStatus, type Task } from "@/lib/supabase/queries/tasks";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import type { Category } from "@/lib/types/category";
 
 interface CategoryPageProps {
   params: {
@@ -13,23 +14,40 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   // Handle "uncategorised" special case
   const isUncategorised = params.slug === "uncategorised";
   
-  let category = null;
-  if (!isUncategorised) {
-    category = await fetchCategoryBySlug(params.slug);
-    if (!category) {
-      notFound();
+  let category: Category | null = null;
+  let tasks: Task[] = [];
+  let children: Category[] = [];
+  let groupedTasks = { inbox: [] as Task[], pending: [] as Task[], scheduled: [] as Task[], completed: [] as Task[], other: [] as Task[] };
+  let taskCounts = { inbox: 0, pending: 0, scheduled: 0, completed: 0, total: 0 };
+
+  try {
+    if (!isUncategorised) {
+      category = await fetchCategoryBySlug(params.slug);
+      if (!category) {
+        notFound();
+      }
     }
+
+    // Fetch tasks for this category (or uncategorised if slug is "uncategorised")
+    tasks = await fetchTasksByCategory(isUncategorised ? null : category?.id || null);
+    
+    // Group tasks by status
+    groupedTasks = groupTasksByStatus(tasks);
+    taskCounts = getTaskCountsByStatus(tasks);
+
+    // Fetch subcategories if this is a real category
+    if (category) {
+      children = await fetchCategoryChildren(category.id);
+    }
+  } catch (error) {
+    console.error("Error loading category page:", error);
+    // If it's a not found case, let notFound() handle it
+    // Otherwise, show empty state
+    if (error && typeof error === 'object' && 'digest' in error) {
+      throw error; // Re-throw Next.js notFound() errors
+    }
+    // For other errors, continue with empty state
   }
-
-  // Fetch tasks for this category (or uncategorised if slug is "uncategorised")
-  const tasks = await fetchTasksByCategory(isUncategorised ? null : category?.id || null);
-  
-  // Group tasks by status
-  const groupedTasks = groupTasksByStatus(tasks);
-  const taskCounts = getTaskCountsByStatus(tasks);
-
-  // Fetch subcategories if this is a real category
-  const children = category ? await fetchCategoryChildren(category.id) : [];
 
   const categoryName = isUncategorised ? "Uncategorised" : category?.name || "Category";
   const categorySlug = isUncategorised ? "uncategorised" : category?.slug || "";
